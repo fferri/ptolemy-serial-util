@@ -1,0 +1,351 @@
+/*
+
+Expression Parser 1.0.1
+by Federico Ferri (C) 2011
+
+Grammatica originale:
+E -> E+T | E-T | T
+T -> T*U | T/U | U
+U -> -F | F
+F -> P^F | P
+P -> (E) | g(E) | n | id
+
+Trasformazione LL(1)
+E -> Te
+e -> +Te | -Te | epsilon
+T -> Ut
+t -> *Ut | /Ut | epsilon
+U -> F | -F
+F -> Pp
+p -> ^F | epsilon
+P -> (E) | g(E) | n | id
+
+*/
+
+options {
+	LOOKAHEAD=1;
+	STATIC=false;
+}
+
+PARSER_BEGIN(ExprParser)
+package ptolemy.exprparser;
+
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+public class ExprParser {
+	private Map<String, Double> variables = new HashMap<String, Double>();
+	private Node lastAST = null;
+
+	public void setVar(String varName, double value) {
+		variables.put(varName, value);
+	}
+
+	public void unsetVar(String varName) {
+		variables.remove(varName);
+	}
+
+	public boolean isSetVar(String varName) {
+		return variables.containsKey(varName);
+	}
+
+	public double getVar(String varName) throws NoSuchElementException {
+		if(!isSetVar(varName)) throw new NoSuchElementException(varName);
+		return variables.get(varName).doubleValue();
+	}
+
+	public abstract class Node {
+		public abstract double eval();
+
+		public abstract void dumpTree(String prefix);
+	}
+
+	public class Number extends Node {
+		private double value;
+
+		public Number(double v) {
+			value = v;
+		}
+
+		public String toString() {
+			return "" + value;
+		}
+
+		public double eval() {
+			return value;
+		}
+
+		public void dumpTree(String prefix) {
+			System.out.println(prefix + toString());
+		}
+	}
+
+	public class Variable extends Node {
+		private String name;
+
+		public Variable(String n) throws ParseException {
+			name = n;
+		}
+
+		public String toString() {
+			return name;
+		}
+
+		public double eval() {
+			try {
+				return getVar(name);
+			} catch(NoSuchElementException e) {
+				throw new RuntimeException("No such variable: " + name);
+			}
+		}
+
+		public void dumpTree(String prefix) {
+			System.out.println(prefix + toString());
+		}
+	}
+
+	public class Parens extends Node {
+		private Node subnode;
+
+		public Parens(Node n) {
+			subnode = n;
+		}
+
+		public String toString() {
+			return "(" + subnode + ")";
+		}
+
+		public double eval() {
+			return subnode.eval();
+		}
+
+		public void dumpTree(String prefix) {
+			System.out.println(prefix + "(...)");
+			subnode.dumpTree(prefix + "  ");
+		}
+	}
+
+	public class Function1 extends Node {
+		private String name;
+		private Node argument;
+		private Method mathMethod;
+
+		public Function1(String n, Node arg) throws ParseException {
+			name = n;
+			argument = arg;
+
+			try {
+				Class<Math> c = Math.class;
+				mathMethod = c.getMethod(name, new Class[]{Double.TYPE});
+
+				((Double) mathMethod.invoke(null, 0.5)).doubleValue();
+			} catch(NoSuchMethodException e) {
+				throw new ParseException("No such function: " + name + "()/1");
+			} catch(IllegalAccessException e) {
+				throw new ParseException(e.toString());
+			} catch(InvocationTargetException e) {
+				throw new ParseException(e.toString());
+			}
+		}
+
+		public String toString() {
+			return name + "(" + argument + ")";
+		}
+
+		public double eval() {
+			double arg = argument.eval();
+			try {
+				return ((Double) mathMethod.invoke(null, arg)).doubleValue();
+			} catch(IllegalAccessException e) {
+				return 0;
+			} catch(InvocationTargetException e) {
+				return 0;
+			}
+		}
+
+		public void dumpTree(String prefix) {
+			System.out.println(prefix + name + "(...)");
+			argument.dumpTree(prefix + "  ");
+		}
+	}
+
+	public static enum UnaryOpType {NEG}
+
+	public class UnaryOp extends Node {
+		private UnaryOpType type;
+		private Node operand;
+
+		public UnaryOp(UnaryOpType t, Node o) {
+			type = t;
+			operand = o;
+		}
+
+		private String opString() {
+			switch(type) {
+			case NEG: return "-";
+			}
+			return "?";
+		}
+
+		public String toString() {
+			return opString() + operand;
+		}
+
+		public double eval() {
+			switch(type) {
+			case NEG: return -operand.eval();
+			}
+			return 0;
+		}
+
+		public void dumpTree(String prefix) {
+			System.out.println(prefix + opString());
+			operand.dumpTree(prefix + "  ");
+		}
+	}
+
+	public static enum BinaryOpType {PLUS, MINUS, MULT, DIV, POW}
+
+	public class BinaryOp extends Node {
+		private BinaryOpType type;
+		private Node left, right;
+
+		public BinaryOp(BinaryOpType t, Node l, Node r) {
+			type = t;
+			left = l;
+			right = r;
+		}
+
+		private String opString() {
+			switch(type) {
+			case PLUS: return "+";
+			case MINUS: return "-";
+			case MULT: return "*";
+			case DIV: return "/";
+			case POW: return "^";
+			}
+			return "?";
+		}
+
+		public String toString() {
+			return left + opString() + right;
+		}
+
+		public double eval() {
+			switch(type) {
+			case PLUS: return left.eval() + right.eval();
+			case MINUS: return left.eval() - right.eval();
+			case MULT: return left.eval() * right.eval();
+			case DIV: return left.eval() / right.eval();
+			case POW: return Math.pow(left.eval(), right.eval());
+			}
+			return 0;
+		}
+
+		public void dumpTree(String prefix) {
+			System.out.println(prefix + opString());
+			left.dumpTree(prefix + "  ");
+			right.dumpTree(prefix + "  ");
+		}
+	}
+
+	// convenience methods:
+
+	public void parse() throws ParseException {
+		lastAST = S();
+	}
+
+	public double eval() {
+		if(lastAST == null)
+			throw new RuntimeException("No AST found. (forgot to call parse()?)");
+		else
+			return lastAST.eval();
+	}
+
+	public void dumpTree() {
+		if(lastAST == null)
+			throw new RuntimeException("No AST found. (forgot to call parse()?)");
+		else
+			lastAST.dumpTree("");
+	}
+
+	public static ExprParser parseString(String s) throws ParseException {
+		ExprParser p = new ExprParser(new BufferedReader(new StringReader(s)));
+		p.parse();
+		return p;
+	}
+}
+
+PARSER_END(ExprParser)
+
+SKIP: {
+	" " | "\t" | "\n" | "\r"
+}
+
+TOKEN: {
+	<NUM: ((["1"-"9"])+(["0"-"9"])*|"0")("."(["0"-"9"])+)?("E"("-")?(["0"-"9"])+)?>
+|	<PLUS: "+"> | <MINUS: "-">
+|	<MULT: "*"> | <DIV: "/">
+|	<PAROP: "("> | <PARCL: ")">
+|	<POW: "^">
+|	<ID: ["a"-"z","A"-"Z","_"](["a"-"z","A"-"Z","0"-"9","_"])*>
+}
+
+Node S() : {Node r;}
+{
+	r = E() <EOF> {return r;}
+}
+
+Node E() : {Node v1, r;}
+{
+	v1 = T() r = e(v1) {return r;}
+}
+
+Node e(Node v1) : {Node v2, v3, r;}
+{
+	<PLUS> v2 = T() {v3 = new BinaryOp(BinaryOpType.PLUS, v1, v2);} r = e(v3) {return r;}
+|	<MINUS> v2 = T() {v3 = new BinaryOp(BinaryOpType.MINUS, v1, v2);} r = e(v3) {return r;}
+|	{return v1;}
+}
+
+Node T() : {Node v1, r;}
+{
+	v1 = U() r = t(v1) {return r;}
+}
+
+Node t(Node v1) : {Node v2, v3, r;}
+{
+	<MULT> v2 = U() {v3 = new BinaryOp(BinaryOpType.MULT, v1, v2);} r = t(v3) {return r;}
+|	<DIV>  v2 = U() {v3 = new BinaryOp(BinaryOpType.DIV, v1, v2);} r = t(v3) {return r;}
+|	{return v1;}
+}
+
+Node U() : {Node r;}
+{
+	r = F() {return r;}
+|	<MINUS> r = F() {return new UnaryOp(UnaryOpType.NEG, r);}
+}
+
+Node F() : {Node v1, r;}
+{
+	v1 = P() r = p(v1) {return r;}
+}
+
+Node p(Node v1) : {Node v2;}
+{
+	<POW> v2 = F() {return new BinaryOp(BinaryOpType.POW, v1, v2);}
+|	{return v1;}
+}
+
+Node P() : {Node r; Token n, f, v;}
+{
+	<PAROP> r = E() <PARCL> {return new Parens(r);}
+|	LOOKAHEAD(<ID> <PAROP>) f = <ID> <PAROP> r = E() <PARCL> {return new Function1(f.image, r);}
+|	n = <NUM> {return new Number(Double.parseDouble(n.image));}
+|	v = <ID> {return new Variable(v.image);}
+}
