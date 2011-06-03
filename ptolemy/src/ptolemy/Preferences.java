@@ -1,26 +1,29 @@
 package ptolemy;
 
 import gnu.io.CommPortIdentifier;
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.ResourceBundle;
+
+import javax.swing.AbstractAction;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import org.jdesktop.application.Action;
 import ptolemy.data.Config;
 
 /**
- *
+ * 
  * @author Federico Ferri <federico.ferri.it@gmail.com>
  */
-public class Preferences extends javax.swing.JDialog {
+public class Preferences extends JDialog {
 	private static final long serialVersionUID = -2569461896876272981L;
-
-	protected static final ResourceBundle res = ResourceBundle.getBundle("ptolemy/resources/Application");
 
 	private Config config = Application.getApplication().getConfig();
 
 	/** Creates new form Preferences */
-	public Preferences(java.awt.Frame parent) {
+	public Preferences(JFrame parent) {
 		super(parent);
 		initComponents();
 		getRootPane().setDefaultButton(buttonOk);
@@ -30,18 +33,20 @@ public class Preferences extends javax.swing.JDialog {
 
 		try {
 			config.load();
-		} catch (IOException e) {
+		} catch(IOException e) {
 			JOptionPane.showMessageDialog(getParent(),
-				res.getString("FAILED_TO_LOAD_PREFERENCES"),
-				res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
+					"Error: Failed to load preferences", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 		updateValuesFromConfig();
 
-		if (!serialPortCombo.getSelectedItem().equals(config.getSerialPort())) {
-			JOptionPane.showMessageDialog(getParent(),
-				res.getString("CONFIGURED_SERIAL_PORT_NOT_AVAILABLE"),
-				res.getString("ERROR"), JOptionPane.WARNING_MESSAGE);
+		if(!serialPortCombo.getSelectedItem().equals(config.getSerialPort())) {
+			JOptionPane
+					.showMessageDialog(
+							getParent(),
+							"Error: the previously configured serial port is no longer available",
+							"Error", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
@@ -68,77 +73,48 @@ public class Preferences extends javax.swing.JDialog {
 		jLabel7 = new javax.swing.JLabel();
 		lblMMS = new javax.swing.JLabel();
 
-		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-		org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application
-				.getInstance(ptolemy.Application.class).getContext()
-				.getResourceMap(Preferences.class);
-		setTitle(resourceMap.getString("Form.title")); // NOI18N
-		setMinimumSize(new java.awt.Dimension(391, 263));
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setTitle("Settings");
+		setMinimumSize(new Dimension(391, 263));
 		setModal(true);
-		setName("Form"); // NOI18N
 		setResizable(false);
 
 		serialPortLabel
 				.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		serialPortLabel.setText(resourceMap.getString("serialPortLabel.text")); // NOI18N
-		serialPortLabel.setName("serialPortLabel"); // NOI18N
+		serialPortLabel.setText("Serial port:");
 
-		serialPortCombo.setModel(new javax.swing.DefaultComboBoxModel(
-				new String[] {"Item 1", "Item 2", "Item 3", "Item 4" }));
-		serialPortCombo.setName("serialPortCombo"); // NOI18N
-
-		javax.swing.ActionMap actionMap = org.jdesktop.application.Application
-				.getInstance(ptolemy.Application.class).getContext()
-				.getActionMap(Preferences.class, this);
-		buttonOk.setAction(actionMap.get("savePreferencesAndClose")); // NOI18N
-		buttonOk.setName("buttonOk"); // NOI18N
-
-		buttonCancel.setAction(actionMap.get("closePreferences")); // NOI18N
-		buttonCancel.setName("buttonCancel"); // NOI18N
-
+		buttonOk.setAction(new savePreferencesAndClose());
+		buttonOk.setText("OK");
+		
+		buttonCancel.setAction(new closePreferences());
+		buttonCancel.setText("Cancel");
+		
 		idLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		idLabel.setText(resourceMap.getString("idLabel.text")); // NOI18N
-		idLabel.setName("idLabel"); // NOI18N
+		idLabel.setText("Device ID:");
 
-		idCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
-				"Item 1", "Item 2", "Item 3", "Item 4" }));
-		idCombo.setName("idCombo"); // NOI18N
-
-		expr.setText(resourceMap.getString("expr.text")); // NOI18N
-		expr.setName("expr"); // NOI18N
+		expr.setText("");
 
 		jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
-		jLabel1.setName("jLabel1"); // NOI18N
-
-		interval.setName("interval"); // NOI18N
+		jLabel1.setText("Computation expr:");
 
 		jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
-		jLabel2.setName("jLabel2"); // NOI18N
+		jLabel2.setText("Periodic read interval:"); // NOI18N
 
-		jLabel3.setText(resourceMap.getString("jLabel3.text")); // NOI18N
-		jLabel3.setName("jLabel3"); // NOI18N
+		jLabel3.setText("ms");
 
-		periodicreadCmd.setText(resourceMap.getString("periodicreadCmd.text")); // NOI18N
-		periodicreadCmd.setName("periodicreadCmd"); // NOI18N
+		periodicreadCmd.setText("???periodicReadCmd???");
 
-		jLabel4.setText(resourceMap.getString("jLabel4.text")); // NOI18N
-		jLabel4.setName("jLabel4"); // NOI18N
+		jLabel4.setText("Periodic read command:");
 
-		read1cmd.setText(resourceMap.getString("read1cmd.text")); // NOI18N
-		read1cmd.setName("read1cmd"); // NOI18N
+		read1cmd.setText("???read1cmd???");
 
-		read2cmd.setText(resourceMap.getString("read2cmd.text")); // NOI18N
-		read2cmd.setName("read2cmd"); // NOI18N
+		read2cmd.setText("???read2cmd???");
 
 		jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		jLabel5.setText(resourceMap.getString("jLabel5.text")); // NOI18N
-		jLabel5.setName("jLabel5"); // NOI18N
+		jLabel5.setText("Read(2) command:");
 
 		jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		jLabel6.setText(resourceMap.getString("jLabel6.text")); // NOI18N
-		jLabel6.setName("jLabel6"); // NOI18N
+		jLabel6.setText("Read(2) command:");
 
 		mobMeanSize.setMajorTickSpacing(8);
 		mobMeanSize.setMaximum(32);
@@ -147,7 +123,6 @@ public class Preferences extends javax.swing.JDialog {
 		mobMeanSize.setPaintTicks(true);
 		mobMeanSize.setSnapToTicks(true);
 		mobMeanSize.setValue(1);
-		mobMeanSize.setName("mobMeanSize"); // NOI18N
 		mobMeanSize
 				.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
 					public void propertyChange(
@@ -157,11 +132,9 @@ public class Preferences extends javax.swing.JDialog {
 				});
 
 		jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		jLabel7.setText(resourceMap.getString("jLabel7.text")); // NOI18N
-		jLabel7.setName("jLabel7"); // NOI18N
+		jLabel7.setText("Moving average size:");
 
-		lblMMS.setText(resourceMap.getString("lblMMS.text")); // NOI18N
-		lblMMS.setName("lblMMS"); // NOI18N
+		lblMMS.setText("");
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(
 				getContentPane());
@@ -431,9 +404,10 @@ public class Preferences extends javax.swing.JDialog {
 		serialPortCombo.removeAllItems();
 
 		Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
-		while (portList.hasMoreElements()) {
-			CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
-			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+		while(portList.hasMoreElements()) {
+			CommPortIdentifier portId = (CommPortIdentifier) portList
+					.nextElement();
+			if(portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
 				String portName = portId.getName();
 				serialPortCombo.addItem(portName);
 			}
@@ -442,67 +416,79 @@ public class Preferences extends javax.swing.JDialog {
 
 	private void populateDeviceIdCombo() {
 		idCombo.removeAllItems();
-		for (int i = 0; i < 16; i++) {
+		for(int i = 0; i < 16; i++) {
 			idCombo.addItem(new Integer(i));
 		}
 	}
 
-	@Action
-	public void savePreferencesAndClose() {
-		try {
-			savePreferences();
-			closePreferences();
-		} catch(InvalidConfigurationException e) {
-			JOptionPane.showMessageDialog(rootPane, e.toString(), res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
+	public class savePreferencesAndClose extends AbstractAction {
+		private static final long serialVersionUID = -4935303979798053712L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			new savePreferences().actionPerformed(null);
+			new closePreferences().actionPerformed(null);
 		}
 	}
 
-	@Action
-	public void closePreferences() {
-		setVisible(false);
-	}
+	public class closePreferences extends AbstractAction {
+		private static final long serialVersionUID = 4578900902576170958L;
 
-	@Action
-	public void savePreferences() throws InvalidConfigurationException {
-		config.setSerialPort((String) serialPortCombo.getSelectedItem());
-		config.setDeviceId((Integer) idCombo.getSelectedItem());
-		config.setComputeFormula(expr.getText());
-		config.setPeriodicReadInterval((Integer) interval.getValue());
-		config.setPeriodicReadCommand(periodicreadCmd.getText());
-		config.setRead1Command(read1cmd.getText());
-		config.setRead2Command(read2cmd.getText());
-		config.setMobileMeanSize(mobMeanSize.getValue());
-		
-		try {
-			config.save();
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(getParent(),
-				res.getString("FAILED_TO_SAVE_PREFERENCES"),
-				res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			setVisible(false);
 		}
-
-		Application.getApplication().reloadConfig();
 	}
-        // Variables declaration - do not modify//GEN-BEGIN:variables
-        private javax.swing.JButton buttonCancel;
-        private javax.swing.JButton buttonOk;
-        private javax.swing.JTextField expr;
-        private javax.swing.JComboBox idCombo;
-        private javax.swing.JLabel idLabel;
-        private javax.swing.JSpinner interval;
-        private javax.swing.JLabel jLabel1;
-        private javax.swing.JLabel jLabel2;
-        private javax.swing.JLabel jLabel3;
-        private javax.swing.JLabel jLabel4;
-        private javax.swing.JLabel jLabel5;
-        private javax.swing.JLabel jLabel6;
-        private javax.swing.JLabel jLabel7;
-        private javax.swing.JLabel lblMMS;
-        private javax.swing.JSlider mobMeanSize;
-        private javax.swing.JTextField periodicreadCmd;
-        private javax.swing.JTextField read1cmd;
-        private javax.swing.JTextField read2cmd;
-        private javax.swing.JComboBox serialPortCombo;
-        private javax.swing.JLabel serialPortLabel;
-        // End of variables declaration//GEN-END:variables
+
+	public class savePreferences extends AbstractAction {
+		private static final long serialVersionUID = -8427503176443073763L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			config.setSerialPort((String) serialPortCombo.getSelectedItem());
+			config.setDeviceId((Integer) idCombo.getSelectedItem());
+			config.setComputeFormula(expr.getText());
+			config.setPeriodicReadInterval((Integer) interval.getValue());
+			config.setPeriodicReadCommand(periodicreadCmd.getText());
+			config.setRead1Command(read1cmd.getText());
+			config.setRead2Command(read2cmd.getText());
+			config.setMobileMeanSize(mobMeanSize.getValue());
+
+			try {
+				config.save();
+			} catch(IOException ex) {
+				JOptionPane.showMessageDialog(getParent(),
+						"Error: failed to save preferences", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+
+			try {
+				Application.getApplication().reloadConfig();
+			} catch(InvalidConfigurationException ex) {
+				JOptionPane.showMessageDialog(rootPane, ex.toString(), "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private javax.swing.JButton buttonCancel;
+	private javax.swing.JButton buttonOk;
+	private javax.swing.JTextField expr;
+	private javax.swing.JComboBox idCombo;
+	private javax.swing.JLabel idLabel;
+	private javax.swing.JSpinner interval;
+	private javax.swing.JLabel jLabel1;
+	private javax.swing.JLabel jLabel2;
+	private javax.swing.JLabel jLabel3;
+	private javax.swing.JLabel jLabel4;
+	private javax.swing.JLabel jLabel5;
+	private javax.swing.JLabel jLabel6;
+	private javax.swing.JLabel jLabel7;
+	private javax.swing.JLabel lblMMS;
+	private javax.swing.JSlider mobMeanSize;
+	private javax.swing.JTextField periodicreadCmd;
+	private javax.swing.JTextField read1cmd;
+	private javax.swing.JTextField read2cmd;
+	private javax.swing.JComboBox serialPortCombo;
+	private javax.swing.JLabel serialPortLabel;
 }
