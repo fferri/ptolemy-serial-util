@@ -30,7 +30,7 @@ public class Timeline extends JFrame {
 	}
 
 	public Timeline() {
-		super("data");
+		super("Ptolemy - Graph window");
 
 		initCharts();
 		initTraces();

@@ -90,10 +90,7 @@ public class Application {
 	 * Main method launching the application.
 	 */
 	public static void main(String[] args) {
-		// JOptionPane.showMessageDialog(null, "java.library.path: " +
-		// System.getProperty("java.library.path").replaceAll(";", "\n"));
-
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		/*Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override public void run() {
 				SerialComm sc = Application.getApplication().getSerialCommObject();
 				if(sc.isOpen()) {
@@ -101,7 +98,7 @@ public class Application {
 					sc.close();
 				}
 			}
-		});
+		});*/
 		
 		Application app = new Application();
 		
