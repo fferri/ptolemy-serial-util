@@ -1,6 +1,5 @@
 package ptolemy;
 
-import javax.swing.JOptionPane;
 import org.jdesktop.application.Action;
 
 /**
@@ -8,7 +7,8 @@ import org.jdesktop.application.Action;
  * @author Federico Ferri <federico.ferri.it@gmail.com>
  */
 public class AboutBox extends javax.swing.JDialog {
-
+	private static final long serialVersionUID = 2722729397969154034L;
+	
 	public AboutBox(java.awt.Frame parent) {
 		super(parent);
 		initComponents();
