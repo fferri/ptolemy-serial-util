@@ -23,12 +23,13 @@ import ptolemy.data.Config;
 
 /**
  * The application's main frame.
- *
+ * 
  * @author Federico Ferri <federico.ferri.it@gmail.com>
  */
 public class View extends FrameView {
-	protected static final ResourceBundle res = ResourceBundle.getBundle("ptolemy/resources/Application");
-	
+	protected static final ResourceBundle res = ResourceBundle
+			.getBundle("ptolemy/resources/Application");
+
 	private SerialComm serialCommObject;
 	private Config config;
 
@@ -47,10 +48,9 @@ public class View extends FrameView {
 
 		changeChartsVisibiity();
 
-		Application.setPrintStream(new PrintStream(textArea2OutputStream(textArea1)));
+		Application.setPrintStream(new PrintStream(
+				textArea2OutputStream(textArea1)));
 
-		// <editor-fold defaultstate="collapsed" desc="Status bar initialization">
-		// status bar initialization - message timeout, idle icon and busy animation, etc
 		ResourceMap resourceMap = getResourceMap();
 		int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
 		messageTimer = new Timer(messageTimeout, new ActionListener() {
@@ -60,9 +60,11 @@ public class View extends FrameView {
 			}
 		});
 		messageTimer.setRepeats(false);
-		int busyAnimationRate = resourceMap.getInteger("StatusBar.busyAnimationRate");
-		for (int i = 0; i < busyIcons.length; i++) {
-			busyIcons[i] = resourceMap.getIcon("StatusBar.busyIcons[" + i + "]");
+		int busyAnimationRate = resourceMap
+				.getInteger("StatusBar.busyAnimationRate");
+		for(int i = 0; i < busyIcons.length; i++) {
+			busyIcons[i] = resourceMap
+					.getIcon("StatusBar.busyIcons[" + i + "]");
 		}
 		busyIconTimer = new Timer(busyAnimationRate, new ActionListener() {
 
@@ -77,35 +79,38 @@ public class View extends FrameView {
 
 		// connecting action tasks to status bar via TaskMonitor
 		TaskMonitor taskMonitor = new TaskMonitor(getApplication().getContext());
-		taskMonitor.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+		taskMonitor
+				.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
 
-			public void propertyChange(java.beans.PropertyChangeEvent evt) {
-				String propertyName = evt.getPropertyName();
-				if ("started".equals(propertyName)) {
-					if (!busyIconTimer.isRunning()) {
-						statusAnimationLabel.setIcon(busyIcons[0]);
-						busyIconIndex = 0;
-						busyIconTimer.start();
+					public void propertyChange(
+							java.beans.PropertyChangeEvent evt) {
+						String propertyName = evt.getPropertyName();
+						if("started".equals(propertyName)) {
+							if(!busyIconTimer.isRunning()) {
+								statusAnimationLabel.setIcon(busyIcons[0]);
+								busyIconIndex = 0;
+								busyIconTimer.start();
+							}
+							progressBar.setVisible(true);
+							progressBar.setIndeterminate(true);
+						} else if("done".equals(propertyName)) {
+							busyIconTimer.stop();
+							statusAnimationLabel.setIcon(idleIcon);
+							progressBar.setVisible(false);
+							progressBar.setValue(0);
+						} else if("message".equals(propertyName)) {
+							String text = (String) (evt.getNewValue());
+							statusMessageLabel.setText((text == null) ? ""
+									: text);
+							messageTimer.restart();
+						} else if("progress".equals(propertyName)) {
+							int value = (Integer) (evt.getNewValue());
+							progressBar.setVisible(true);
+							progressBar.setIndeterminate(false);
+							progressBar.setValue(value);
+						}
 					}
-					progressBar.setVisible(true);
-					progressBar.setIndeterminate(true);
-				} else if ("done".equals(propertyName)) {
-					busyIconTimer.stop();
-					statusAnimationLabel.setIcon(idleIcon);
-					progressBar.setVisible(false);
-					progressBar.setValue(0);
-				} else if ("message".equals(propertyName)) {
-					String text = (String) (evt.getNewValue());
-					statusMessageLabel.setText((text == null) ? "" : text);
-					messageTimer.restart();
-				} else if ("progress".equals(propertyName)) {
-					int value = (Integer) (evt.getNewValue());
-					progressBar.setVisible(true);
-					progressBar.setIndeterminate(false);
-					progressBar.setValue(value);
-				}
-			}
-		});// </editor-fold>
+				});
 	}
 
 	public final void updateMenus() {
@@ -115,17 +120,17 @@ public class View extends FrameView {
 
 	@Action
 	public final void showPreferences() {
-		//if (prefsBox == null) {
-			JFrame mainFrame = Application.getApplication().getMainFrame();
-			prefsBox = new Preferences(mainFrame);
-			prefsBox.setLocationRelativeTo(mainFrame);
-		//}
+		// if (prefsBox == null) {
+		JFrame mainFrame = Application.getApplication().getMainFrame();
+		prefsBox = new Preferences(mainFrame);
+		prefsBox.setLocationRelativeTo(mainFrame);
+		// }
 		Application.getApplication().show(prefsBox);
 	}
 
 	@Action
 	public final void showAboutBox() {
-		if (aboutBox == null) {
+		if(aboutBox == null) {
 			JFrame mainFrame = Application.getApplication().getMainFrame();
 			aboutBox = new AboutBox(mainFrame);
 			aboutBox.setLocationRelativeTo(mainFrame);
@@ -133,247 +138,335 @@ public class View extends FrameView {
 		Application.getApplication().show(aboutBox);
 	}
 
-	/** This method is called from within the constructor to
-	 * initialize the form.
-	 * WARNING: Do NOT modify this code. The content of this method is
-	 * always regenerated by the Form Editor.
-	 */
-	@SuppressWarnings("unchecked")
-        // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-        private void initComponents() {
+	private void initComponents() {
+		mainPanel = new javax.swing.JPanel();
+		buttonRead = new javax.swing.JButton();
+		jScrollPane1 = new javax.swing.JScrollPane();
+		textArea1 = new javax.swing.JTextArea();
+		buttonRead2 = new javax.swing.JButton();
+		buttonReadLoop = new javax.swing.JToggleButton();
+		menuBar = new javax.swing.JMenuBar();
+		javax.swing.JMenu menuFile = new javax.swing.JMenu();
+		menuFileExportCSV = new javax.swing.JMenuItem();
+		menuFileOpenserial = new javax.swing.JMenuItem();
+		menuFileCloseserial = new javax.swing.JMenuItem();
+		menuFileSeparator1 = new javax.swing.JPopupMenu.Separator();
+		menuFilePreferences = new javax.swing.JMenuItem();
+		menuFileSeparator2 = new javax.swing.JPopupMenu.Separator();
+		menuFileSeparator21 = new javax.swing.JPopupMenu.Separator();
+		javax.swing.JMenuItem menuFileExit = new javax.swing.JMenuItem();
+		menuGraph = new javax.swing.JMenu();
+		menuGraphShow = new javax.swing.JMenuItem();
+		menuGraphEmpty = new javax.swing.JMenuItem();
+		menuGraphSeparator1 = new javax.swing.JPopupMenu.Separator();
+		menuGraphChkComposite = new javax.swing.JCheckBoxMenuItem();
+		menuGraphChkSensorHi = new javax.swing.JCheckBoxMenuItem();
+		menuGraphChkSensorLo = new javax.swing.JCheckBoxMenuItem();
+		menuGraphChkReferenceHi = new javax.swing.JCheckBoxMenuItem();
+		menuGraphChkReferenceLo = new javax.swing.JCheckBoxMenuItem();
+		javax.swing.JMenu helpMenu = new javax.swing.JMenu();
+		javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
+		statusPanel = new javax.swing.JPanel();
+		javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
+		statusMessageLabel = new javax.swing.JLabel();
+		statusAnimationLabel = new javax.swing.JLabel();
+		progressBar = new javax.swing.JProgressBar();
+		inputBox = new ptolemy.JTextFieldWithHistory();
 
-                mainPanel = new javax.swing.JPanel();
-                buttonRead = new javax.swing.JButton();
-                jScrollPane1 = new javax.swing.JScrollPane();
-                textArea1 = new javax.swing.JTextArea();
-                buttonRead2 = new javax.swing.JButton();
-                buttonReadLoop = new javax.swing.JToggleButton();
-                menuBar = new javax.swing.JMenuBar();
-                javax.swing.JMenu menuFile = new javax.swing.JMenu();
-                menuFileExportCSV = new javax.swing.JMenuItem();
-                menuFileOpenserial = new javax.swing.JMenuItem();
-                menuFileCloseserial = new javax.swing.JMenuItem();
-                menuFileSeparator1 = new javax.swing.JPopupMenu.Separator();
-                menuFilePreferences = new javax.swing.JMenuItem();
-                menuFileSeparator2 = new javax.swing.JPopupMenu.Separator();
-                menuFileSeparator21 = new javax.swing.JPopupMenu.Separator();
-                javax.swing.JMenuItem menuFileExit = new javax.swing.JMenuItem();
-                menuGraph = new javax.swing.JMenu();
-                menuGraphShow = new javax.swing.JMenuItem();
-                menuGraphEmpty = new javax.swing.JMenuItem();
-                menuGraphSeparator1 = new javax.swing.JPopupMenu.Separator();
-                menuGraphChkComposite = new javax.swing.JCheckBoxMenuItem();
-                menuGraphChkSensorHi = new javax.swing.JCheckBoxMenuItem();
-                menuGraphChkSensorLo = new javax.swing.JCheckBoxMenuItem();
-                menuGraphChkReferenceHi = new javax.swing.JCheckBoxMenuItem();
-                menuGraphChkReferenceLo = new javax.swing.JCheckBoxMenuItem();
-                javax.swing.JMenu helpMenu = new javax.swing.JMenu();
-                javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
-                statusPanel = new javax.swing.JPanel();
-                javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
-                statusMessageLabel = new javax.swing.JLabel();
-                statusAnimationLabel = new javax.swing.JLabel();
-                progressBar = new javax.swing.JProgressBar();
-                inputBox = new ptolemy.JTextFieldWithHistory();
+		mainPanel.setName("mainPanel"); // NOI18N
 
-                mainPanel.setName("mainPanel"); // NOI18N
+		javax.swing.ActionMap actionMap = org.jdesktop.application.Application
+				.getInstance(ptolemy.Application.class).getContext()
+				.getActionMap(View.class, this);
+		buttonRead.setAction(actionMap.get("doRead")); // NOI18N
+		org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application
+				.getInstance(ptolemy.Application.class).getContext()
+				.getResourceMap(View.class);
+		buttonRead.setText(resourceMap.getString("buttonRead.text")); // NOI18N
+		buttonRead.setName("buttonRead"); // NOI18N
 
-                javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(ptolemy.Application.class).getContext().getActionMap(View.class, this);
-                buttonRead.setAction(actionMap.get("doRead")); // NOI18N
-                org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(ptolemy.Application.class).getContext().getResourceMap(View.class);
-                buttonRead.setText(resourceMap.getString("buttonRead.text")); // NOI18N
-                buttonRead.setName("buttonRead"); // NOI18N
+		jScrollPane1.setName("jScrollPane1"); // NOI18N
 
-                jScrollPane1.setName("jScrollPane1"); // NOI18N
+		textArea1.setBackground(resourceMap.getColor("textArea1.background")); // NOI18N
+		textArea1.setColumns(20);
+		textArea1.setEditable(false);
+		textArea1.setForeground(resourceMap.getColor("textArea1.foreground")); // NOI18N
+		textArea1.setRows(5);
+		textArea1.setName("textArea1"); // NOI18N
+		jScrollPane1.setViewportView(textArea1);
 
-                textArea1.setBackground(resourceMap.getColor("textArea1.background")); // NOI18N
-                textArea1.setColumns(20);
-                textArea1.setEditable(false);
-                textArea1.setForeground(resourceMap.getColor("textArea1.foreground")); // NOI18N
-                textArea1.setRows(5);
-                textArea1.setName("textArea1"); // NOI18N
-                jScrollPane1.setViewportView(textArea1);
+		buttonRead2.setAction(actionMap.get("doRead2")); // NOI18N
+		buttonRead2.setName("buttonRead2"); // NOI18N
 
-                buttonRead2.setAction(actionMap.get("doRead2")); // NOI18N
-                buttonRead2.setName("buttonRead2"); // NOI18N
+		buttonReadLoop.setAction(actionMap.get("doReadLoopToggle")); // NOI18N
+		buttonReadLoop.setText(resourceMap.getString("buttonReadLoop.text")); // NOI18N
+		buttonReadLoop.setName("buttonReadLoop"); // NOI18N
 
-                buttonReadLoop.setAction(actionMap.get("doReadLoopToggle")); // NOI18N
-                buttonReadLoop.setText(resourceMap.getString("buttonReadLoop.text")); // NOI18N
-                buttonReadLoop.setName("buttonReadLoop"); // NOI18N
+		javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(
+				mainPanel);
+		mainPanel.setLayout(mainPanelLayout);
+		mainPanelLayout
+				.setHorizontalGroup(mainPanelLayout
+						.createParallelGroup(
+								javax.swing.GroupLayout.Alignment.LEADING)
+						.addGroup(
+								mainPanelLayout
+										.createSequentialGroup()
+										.addContainerGap()
+										.addGroup(
+												mainPanelLayout
+														.createParallelGroup(
+																javax.swing.GroupLayout.Alignment.LEADING)
+														.addComponent(
+																jScrollPane1,
+																javax.swing.GroupLayout.DEFAULT_SIZE,
+																636,
+																Short.MAX_VALUE)
+														.addGroup(
+																mainPanelLayout
+																		.createSequentialGroup()
+																		.addComponent(
+																				buttonRead)
+																		.addPreferredGap(
+																				javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+																		.addComponent(
+																				buttonRead2)
+																		.addPreferredGap(
+																				javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+																		.addComponent(
+																				buttonReadLoop)))
+										.addContainerGap()));
+		mainPanelLayout
+				.setVerticalGroup(mainPanelLayout
+						.createParallelGroup(
+								javax.swing.GroupLayout.Alignment.LEADING)
+						.addGroup(
+								mainPanelLayout
+										.createSequentialGroup()
+										.addContainerGap()
+										.addGroup(
+												mainPanelLayout
+														.createParallelGroup(
+																javax.swing.GroupLayout.Alignment.BASELINE)
+														.addComponent(
+																buttonRead)
+														.addComponent(
+																buttonRead2)
+														.addComponent(
+																buttonReadLoop))
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(
+												jScrollPane1,
+												javax.swing.GroupLayout.DEFAULT_SIZE,
+												322, Short.MAX_VALUE)
+										.addContainerGap()));
 
-                javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
-                mainPanel.setLayout(mainPanelLayout);
-                mainPanelLayout.setHorizontalGroup(
-                        mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 636, Short.MAX_VALUE)
-                                        .addGroup(mainPanelLayout.createSequentialGroup()
-                                                .addComponent(buttonRead)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(buttonRead2)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(buttonReadLoop)))
-                                .addContainerGap())
-                );
-                mainPanelLayout.setVerticalGroup(
-                        mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(mainPanelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(buttonRead)
-                                        .addComponent(buttonRead2)
-                                        .addComponent(buttonReadLoop))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
-                                .addContainerGap())
-                );
+		menuBar.setName("menuBar"); // NOI18N
 
-                menuBar.setName("menuBar"); // NOI18N
+		menuFile.setText(resourceMap.getString("menuFile.text")); // NOI18N
+		menuFile.setName("menuFile"); // NOI18N
 
-                menuFile.setText(resourceMap.getString("menuFile.text")); // NOI18N
-                menuFile.setName("menuFile"); // NOI18N
+		menuFileExportCSV.setAction(actionMap.get("doExportCSV")); // NOI18N
+		menuFileExportCSV.setText(resourceMap
+				.getString("menuFileExportCSV.text")); // NOI18N
+		menuFileExportCSV.setName("menuFileExportCSV"); // NOI18N
+		menuFile.add(menuFileExportCSV);
 
-                menuFileExportCSV.setAction(actionMap.get("doExportCSV")); // NOI18N
-                menuFileExportCSV.setText(resourceMap.getString("menuFileExportCSV.text")); // NOI18N
-                menuFileExportCSV.setName("menuFileExportCSV"); // NOI18N
-                menuFile.add(menuFileExportCSV);
-                
-                menuFileSeparator21.setName("menuFileSeparator21");
-                menuFile.add(menuFileSeparator21);
-                
-                menuFileOpenserial.setAction(actionMap.get("doOpenSerial")); // NOI18N
-                menuFileOpenserial.setText(resourceMap.getString("menuFileOpenserial.text")); // NOI18N
-                menuFileOpenserial.setName("menuFileOpenserial"); // NOI18N
-                menuFile.add(menuFileOpenserial);
+		menuFileSeparator21.setName("menuFileSeparator21");
+		menuFile.add(menuFileSeparator21);
 
-                menuFileCloseserial.setAction(actionMap.get("doCloseSerial")); // NOI18N
-                menuFileCloseserial.setText(resourceMap.getString("menuFileCloseserial.text")); // NOI18N
-                menuFileCloseserial.setName("menuFileCloseserial"); // NOI18N
-                menuFile.add(menuFileCloseserial);
+		menuFileOpenserial.setAction(actionMap.get("doOpenSerial")); // NOI18N
+		menuFileOpenserial.setText(resourceMap
+				.getString("menuFileOpenserial.text")); // NOI18N
+		menuFileOpenserial.setName("menuFileOpenserial"); // NOI18N
+		menuFile.add(menuFileOpenserial);
 
-                menuFileSeparator1.setName("menuFileSeparator1"); // NOI18N
-                menuFile.add(menuFileSeparator1);
+		menuFileCloseserial.setAction(actionMap.get("doCloseSerial")); // NOI18N
+		menuFileCloseserial.setText(resourceMap
+				.getString("menuFileCloseserial.text")); // NOI18N
+		menuFileCloseserial.setName("menuFileCloseserial"); // NOI18N
+		menuFile.add(menuFileCloseserial);
 
-                menuFilePreferences.setAction(actionMap.get("showPreferences")); // NOI18N
-                menuFilePreferences.setText(resourceMap.getString("menuFilePreferences.text")); // NOI18N
-                menuFilePreferences.setName("menuFilePreferences"); // NOI18N
-                menuFile.add(menuFilePreferences);
+		menuFileSeparator1.setName("menuFileSeparator1"); // NOI18N
+		menuFile.add(menuFileSeparator1);
 
-                menuFileSeparator2.setName("menuFileSeparator2"); // NOI18N
-                menuFile.add(menuFileSeparator2);
+		menuFilePreferences.setAction(actionMap.get("showPreferences")); // NOI18N
+		menuFilePreferences.setText(resourceMap
+				.getString("menuFilePreferences.text")); // NOI18N
+		menuFilePreferences.setName("menuFilePreferences"); // NOI18N
+		menuFile.add(menuFilePreferences);
 
-                menuFileExit.setAction(actionMap.get("quit")); // NOI18N
-                menuFileExit.setName("menuFileExit"); // NOI18N
-                menuFile.add(menuFileExit);
+		menuFileSeparator2.setName("menuFileSeparator2"); // NOI18N
+		menuFile.add(menuFileSeparator2);
 
-                menuBar.add(menuFile);
+		menuFileExit.setAction(actionMap.get("quit")); // NOI18N
+		menuFileExit.setName("menuFileExit"); // NOI18N
+		menuFile.add(menuFileExit);
 
-                menuGraph.setText(resourceMap.getString("menuGraph.text")); // NOI18N
-                menuGraph.setName("menuGraph"); // NOI18N
+		menuBar.add(menuFile);
 
-                menuGraphShow.setAction(actionMap.get("showGraphWindow")); // NOI18N
-                menuGraphShow.setText(resourceMap.getString("menuGraphShow.text")); // NOI18N
-                menuGraphShow.setName("menuGraphShow"); // NOI18N
-                menuGraph.add(menuGraphShow);
+		menuGraph.setText(resourceMap.getString("menuGraph.text")); // NOI18N
+		menuGraph.setName("menuGraph"); // NOI18N
 
-                menuGraphEmpty.setAction(actionMap.get("emptyGraphData")); // NOI18N
-                menuGraphEmpty.setText(resourceMap.getString("menuGraphEmpty.text")); // NOI18N
-                menuGraphEmpty.setName("menuGraphEmpty"); // NOI18N
-                menuGraph.add(menuGraphEmpty);
+		menuGraphShow.setAction(actionMap.get("showGraphWindow")); // NOI18N
+		menuGraphShow.setText(resourceMap.getString("menuGraphShow.text")); // NOI18N
+		menuGraphShow.setName("menuGraphShow"); // NOI18N
+		menuGraph.add(menuGraphShow);
 
-                menuGraphSeparator1.setName("menuGraphSeparator1"); // NOI18N
-                menuGraph.add(menuGraphSeparator1);
+		menuGraphEmpty.setAction(actionMap.get("emptyGraphData")); // NOI18N
+		menuGraphEmpty.setText(resourceMap.getString("menuGraphEmpty.text")); // NOI18N
+		menuGraphEmpty.setName("menuGraphEmpty"); // NOI18N
+		menuGraph.add(menuGraphEmpty);
 
-                menuGraphChkComposite.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
-                menuGraphChkComposite.setSelected(true);
-                menuGraphChkComposite.setText(resourceMap.getString("menuGraphChkComposite.text")); // NOI18N
-                menuGraphChkComposite.setName("menuGraphChkComposite"); // NOI18N
-                menuGraph.add(menuGraphChkComposite);
+		menuGraphSeparator1.setName("menuGraphSeparator1"); // NOI18N
+		menuGraph.add(menuGraphSeparator1);
 
-                menuGraphChkSensorHi.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
-                menuGraphChkSensorHi.setText(resourceMap.getString("menuGraphChkSensorHi.text")); // NOI18N
-                menuGraphChkSensorHi.setName("menuGraphChkSensorHi"); // NOI18N
-                menuGraph.add(menuGraphChkSensorHi);
+		menuGraphChkComposite.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
+		menuGraphChkComposite.setSelected(true);
+		menuGraphChkComposite.setText(resourceMap
+				.getString("menuGraphChkComposite.text")); // NOI18N
+		menuGraphChkComposite.setName("menuGraphChkComposite"); // NOI18N
+		menuGraph.add(menuGraphChkComposite);
 
-                menuGraphChkSensorLo.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
-                menuGraphChkSensorLo.setText(resourceMap.getString("menuGraphChkSensorLo.text")); // NOI18N
-                menuGraphChkSensorLo.setName("menuGraphChkSensorLo"); // NOI18N
-                menuGraph.add(menuGraphChkSensorLo);
+		menuGraphChkSensorHi.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
+		menuGraphChkSensorHi.setText(resourceMap
+				.getString("menuGraphChkSensorHi.text")); // NOI18N
+		menuGraphChkSensorHi.setName("menuGraphChkSensorHi"); // NOI18N
+		menuGraph.add(menuGraphChkSensorHi);
 
-                menuGraphChkReferenceHi.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
-                menuGraphChkReferenceHi.setText(resourceMap.getString("menuGraphChkReferenceHi.text")); // NOI18N
-                menuGraphChkReferenceHi.setName("menuGraphChkReferenceHi"); // NOI18N
-                menuGraph.add(menuGraphChkReferenceHi);
+		menuGraphChkSensorLo.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
+		menuGraphChkSensorLo.setText(resourceMap
+				.getString("menuGraphChkSensorLo.text")); // NOI18N
+		menuGraphChkSensorLo.setName("menuGraphChkSensorLo"); // NOI18N
+		menuGraph.add(menuGraphChkSensorLo);
 
-                menuGraphChkReferenceLo.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
-                menuGraphChkReferenceLo.setText(resourceMap.getString("menuGraphChkReferenceLo.text")); // NOI18N
-                menuGraphChkReferenceLo.setName("menuGraphChkReferenceLo"); // NOI18N
-                menuGraph.add(menuGraphChkReferenceLo);
+		menuGraphChkReferenceHi.setAction(actionMap
+				.get("changeChartsVisibiity")); // NOI18N
+		menuGraphChkReferenceHi.setText(resourceMap
+				.getString("menuGraphChkReferenceHi.text")); // NOI18N
+		menuGraphChkReferenceHi.setName("menuGraphChkReferenceHi"); // NOI18N
+		menuGraph.add(menuGraphChkReferenceHi);
 
-                menuBar.add(menuGraph);
+		menuGraphChkReferenceLo.setAction(actionMap
+				.get("changeChartsVisibiity")); // NOI18N
+		menuGraphChkReferenceLo.setText(resourceMap
+				.getString("menuGraphChkReferenceLo.text")); // NOI18N
+		menuGraphChkReferenceLo.setName("menuGraphChkReferenceLo"); // NOI18N
+		menuGraph.add(menuGraphChkReferenceLo);
 
-                helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
+		menuBar.add(menuGraph);
 
-                aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
-                aboutMenuItem.setName("aboutMenuItem"); // NOI18N
-                helpMenu.add(aboutMenuItem);
+		helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
 
-                menuBar.add(helpMenu);
+		aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
+		aboutMenuItem.setName("aboutMenuItem"); // NOI18N
+		helpMenu.add(aboutMenuItem);
 
-                statusPanel.setName("statusPanel"); // NOI18N
+		menuBar.add(helpMenu);
 
-                statusPanelSeparator.setName("statusPanelSeparator"); // NOI18N
+		statusPanel.setName("statusPanel"); // NOI18N
 
-                statusMessageLabel.setName("statusMessageLabel"); // NOI18N
+		statusPanelSeparator.setName("statusPanelSeparator"); // NOI18N
 
-                statusAnimationLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-                statusAnimationLabel.setName("statusAnimationLabel"); // NOI18N
+		statusMessageLabel.setName("statusMessageLabel"); // NOI18N
 
-                progressBar.setName("progressBar"); // NOI18N
+		statusAnimationLabel
+				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+		statusAnimationLabel.setName("statusAnimationLabel"); // NOI18N
 
-                inputBox.setText(resourceMap.getString("inputBox.text")); // NOI18N
-                inputBox.setName("inputBox"); // NOI18N
+		progressBar.setName("progressBar"); // NOI18N
 
-                javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
-                statusPanel.setLayout(statusPanelLayout);
-                statusPanelLayout.setHorizontalGroup(
-                        statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE)
-                        .addGroup(statusPanelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(statusMessageLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(inputBox, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusAnimationLabel)
-                                .addContainerGap())
-                );
-                statusPanelLayout.setVerticalGroup(
-                        statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(statusPanelLayout.createSequentialGroup()
-                                .addComponent(statusPanelSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(statusPanelLayout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
-                                                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                        .addComponent(statusMessageLabel)
-                                                        .addComponent(statusAnimationLabel)
-                                                        .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                .addGap(3, 3, 3))
-                                        .addGroup(statusPanelLayout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(inputBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addContainerGap())))
-                );
+		inputBox.setText(resourceMap.getString("inputBox.text")); // NOI18N
+		inputBox.setName("inputBox"); // NOI18N
 
-                setComponent(mainPanel);
-                setMenuBar(menuBar);
-                setStatusBar(statusPanel);
-        }// </editor-fold>//GEN-END:initComponents
+		javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(
+				statusPanel);
+		statusPanel.setLayout(statusPanelLayout);
+		statusPanelLayout
+				.setHorizontalGroup(statusPanelLayout
+						.createParallelGroup(
+								javax.swing.GroupLayout.Alignment.LEADING)
+						.addComponent(statusPanelSeparator,
+								javax.swing.GroupLayout.DEFAULT_SIZE, 656,
+								Short.MAX_VALUE)
+						.addGroup(
+								statusPanelLayout
+										.createSequentialGroup()
+										.addContainerGap()
+										.addComponent(statusMessageLabel)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(
+												inputBox,
+												javax.swing.GroupLayout.DEFAULT_SIZE,
+												476, Short.MAX_VALUE)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(
+												progressBar,
+												javax.swing.GroupLayout.PREFERRED_SIZE,
+												javax.swing.GroupLayout.DEFAULT_SIZE,
+												javax.swing.GroupLayout.PREFERRED_SIZE)
+										.addPreferredGap(
+												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(statusAnimationLabel)
+										.addContainerGap()));
+		statusPanelLayout
+				.setVerticalGroup(statusPanelLayout
+						.createParallelGroup(
+								javax.swing.GroupLayout.Alignment.LEADING)
+						.addGroup(
+								statusPanelLayout
+										.createSequentialGroup()
+										.addComponent(
+												statusPanelSeparator,
+												javax.swing.GroupLayout.PREFERRED_SIZE,
+												2,
+												javax.swing.GroupLayout.PREFERRED_SIZE)
+										.addGroup(
+												statusPanelLayout
+														.createParallelGroup(
+																javax.swing.GroupLayout.Alignment.LEADING)
+														.addGroup(
+																statusPanelLayout
+																		.createSequentialGroup()
+																		.addPreferredGap(
+																				javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+																				20,
+																				Short.MAX_VALUE)
+																		.addGroup(
+																				statusPanelLayout
+																						.createParallelGroup(
+																								javax.swing.GroupLayout.Alignment.BASELINE)
+																						.addComponent(
+																								statusMessageLabel)
+																						.addComponent(
+																								statusAnimationLabel)
+																						.addComponent(
+																								progressBar,
+																								javax.swing.GroupLayout.PREFERRED_SIZE,
+																								javax.swing.GroupLayout.DEFAULT_SIZE,
+																								javax.swing.GroupLayout.PREFERRED_SIZE))
+																		.addGap(3,
+																				3,
+																				3))
+														.addGroup(
+																statusPanelLayout
+																		.createSequentialGroup()
+																		.addPreferredGap(
+																				javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+																		.addComponent(
+																				inputBox,
+																				javax.swing.GroupLayout.PREFERRED_SIZE,
+																				javax.swing.GroupLayout.DEFAULT_SIZE,
+																				javax.swing.GroupLayout.PREFERRED_SIZE)
+																		.addContainerGap()))));
+
+		setComponent(mainPanel);
+		setMenuBar(menuBar);
+		setStatusBar(statusPanel);
+	}
 
 	public final OutputStream textArea2OutputStream(final JTextArea t) {
 		return new OutputStream() {
@@ -392,7 +485,9 @@ public class View extends FrameView {
 	@Action
 	public final void doRead() {
 		if(!serialCommObject.isOpen()) {
-			JOptionPane.showMessageDialog(getComponent(), res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getComponent(),
+					res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"),
+					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		serialCommObject.sendCommand(config.getRead1Command());
@@ -401,7 +496,9 @@ public class View extends FrameView {
 	@Action
 	public final void doRead2() {
 		if(!serialCommObject.isOpen()) {
-			JOptionPane.showMessageDialog(getComponent(), res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getComponent(),
+					res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"),
+					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		serialCommObject.sendCommand(config.getRead2Command());
@@ -415,20 +512,23 @@ public class View extends FrameView {
 			try {
 				dp.exportCSVData(fc.getSelectedFile());
 			} catch(Exception e) {
-				JOptionPane.showMessageDialog(getRootPane(), res.getString("ERROR") + ": " + e.toString());
+				JOptionPane.showMessageDialog(getRootPane(),
+						res.getString("ERROR") + ": " + e.toString());
 			}
 		}
 	}
-	
+
 	@Action
 	public final void doOpenSerial() {
 		CommPortIdentifier id = config.getSerialPortId();
 
-		if (id == null) {
-			JOptionPane.showMessageDialog(getComponent(), res.getString("NO_SERIAL_PORT_CONFIGURED"), res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
+		if(id == null) {
+			JOptionPane.showMessageDialog(getComponent(),
+					res.getString("NO_SERIAL_PORT_CONFIGURED"),
+					res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
+
 		serialCommObject.open(id);
 		updateMenus();
 	}
@@ -442,12 +542,14 @@ public class View extends FrameView {
 	@Action
 	public final void doReadLoopToggle() {
 		if(!serialCommObject.isOpen()) {
-			JOptionPane.showMessageDialog(getComponent(), res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getComponent(),
+					res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"),
+					JOptionPane.ERROR_MESSAGE);
 			buttonReadLoop.setSelected(false);
 			return;
 		}
 
-		if (buttonReadLoop.isSelected()) {
+		if(buttonReadLoop.isSelected()) {
 			enablePeriodicRead();
 		} else {
 			disablePeriodicRead();
@@ -461,11 +563,16 @@ public class View extends FrameView {
 
 	@Action
 	public final void changeChartsVisibiity() {
-		timeline.setChartVisible(Timeline.Index.SENSOR_HI, menuGraphChkSensorHi.isSelected());
-		timeline.setChartVisible(Timeline.Index.SENSOR_LO, menuGraphChkSensorLo.isSelected());
-		timeline.setChartVisible(Timeline.Index.REFERENCE_HI, menuGraphChkReferenceHi.isSelected());
-		timeline.setChartVisible(Timeline.Index.REFERENCE_LO, menuGraphChkReferenceLo.isSelected());
-		timeline.setChartVisible(Timeline.Index.COMPUTED, menuGraphChkComposite.isSelected());
+		timeline.setChartVisible(Timeline.Index.SENSOR_HI,
+				menuGraphChkSensorHi.isSelected());
+		timeline.setChartVisible(Timeline.Index.SENSOR_LO,
+				menuGraphChkSensorLo.isSelected());
+		timeline.setChartVisible(Timeline.Index.REFERENCE_HI,
+				menuGraphChkReferenceHi.isSelected());
+		timeline.setChartVisible(Timeline.Index.REFERENCE_LO,
+				menuGraphChkReferenceLo.isSelected());
+		timeline.setChartVisible(Timeline.Index.COMPUTED,
+				menuGraphChkComposite.isSelected());
 	}
 
 	@Action
@@ -488,42 +595,40 @@ public class View extends FrameView {
 		buttonRead.setEnabled(true);
 		buttonRead2.setEnabled(true);
 
-		//timeline.setVisible(false);
+		// timeline.setVisible(false);
 
 		serialCommObject.disablePeriodicRead();
 	}
 
+	private javax.swing.JButton buttonRead;
+	private javax.swing.JButton buttonRead2;
+	private javax.swing.JToggleButton buttonReadLoop;
+	private javax.swing.JTextField inputBox;
+	private javax.swing.JScrollPane jScrollPane1;
+	private javax.swing.JPanel mainPanel;
+	private javax.swing.JMenuBar menuBar;
+	private javax.swing.JMenuItem menuFileExportCSV;
+	private javax.swing.JMenuItem menuFileCloseserial;
+	private javax.swing.JMenuItem menuFileOpenserial;
+	private javax.swing.JMenuItem menuFilePreferences;
+	private javax.swing.JPopupMenu.Separator menuFileSeparator1;
+	private javax.swing.JPopupMenu.Separator menuFileSeparator2;
+	private javax.swing.JPopupMenu.Separator menuFileSeparator21;
+	private javax.swing.JMenu menuGraph;
+	private javax.swing.JCheckBoxMenuItem menuGraphChkComposite;
+	private javax.swing.JCheckBoxMenuItem menuGraphChkReferenceHi;
+	private javax.swing.JCheckBoxMenuItem menuGraphChkReferenceLo;
+	private javax.swing.JCheckBoxMenuItem menuGraphChkSensorHi;
+	private javax.swing.JCheckBoxMenuItem menuGraphChkSensorLo;
+	private javax.swing.JMenuItem menuGraphEmpty;
+	private javax.swing.JPopupMenu.Separator menuGraphSeparator1;
+	private javax.swing.JMenuItem menuGraphShow;
+	private javax.swing.JProgressBar progressBar;
+	private javax.swing.JLabel statusAnimationLabel;
+	private javax.swing.JLabel statusMessageLabel;
+	private javax.swing.JPanel statusPanel;
+	private javax.swing.JTextArea textArea1;
 
-        // Variables declaration - do not modify//GEN-BEGIN:variables
-        private javax.swing.JButton buttonRead;
-        private javax.swing.JButton buttonRead2;
-        private javax.swing.JToggleButton buttonReadLoop;
-        private javax.swing.JTextField inputBox;
-        private javax.swing.JScrollPane jScrollPane1;
-        private javax.swing.JPanel mainPanel;
-        private javax.swing.JMenuBar menuBar;
-        private javax.swing.JMenuItem menuFileExportCSV;
-        private javax.swing.JMenuItem menuFileCloseserial;
-        private javax.swing.JMenuItem menuFileOpenserial;
-        private javax.swing.JMenuItem menuFilePreferences;
-        private javax.swing.JPopupMenu.Separator menuFileSeparator1;
-        private javax.swing.JPopupMenu.Separator menuFileSeparator2;
-        private javax.swing.JPopupMenu.Separator menuFileSeparator21;
-        private javax.swing.JMenu menuGraph;
-        private javax.swing.JCheckBoxMenuItem menuGraphChkComposite;
-        private javax.swing.JCheckBoxMenuItem menuGraphChkReferenceHi;
-        private javax.swing.JCheckBoxMenuItem menuGraphChkReferenceLo;
-        private javax.swing.JCheckBoxMenuItem menuGraphChkSensorHi;
-        private javax.swing.JCheckBoxMenuItem menuGraphChkSensorLo;
-        private javax.swing.JMenuItem menuGraphEmpty;
-        private javax.swing.JPopupMenu.Separator menuGraphSeparator1;
-        private javax.swing.JMenuItem menuGraphShow;
-        private javax.swing.JProgressBar progressBar;
-        private javax.swing.JLabel statusAnimationLabel;
-        private javax.swing.JLabel statusMessageLabel;
-        private javax.swing.JPanel statusPanel;
-        private javax.swing.JTextArea textArea1;
-        // End of variables declaration//GEN-END:variables
 	private final Timer messageTimer;
 	private final Timer busyIconTimer;
 	private final Icon idleIcon;

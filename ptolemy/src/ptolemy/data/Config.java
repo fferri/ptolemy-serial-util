@@ -3,7 +3,6 @@ package ptolemy.data;
 import gnu.io.CommPortIdentifier;
 import java.io.File;
 import java.io.IOException;
-import java.text.Annotation;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 import ptolemy.Application;
@@ -15,11 +14,11 @@ import ptolemy.Application;
 public class Config extends PropertiesPersistent {
 	protected static final ResourceBundle res = ResourceBundle.getBundle("ptolemy/resources/Application");
 
-	private static class ConfigEntry extends Annotation {
+	/*private static class ConfigEntry extends Annotation {
 		public ConfigEntry(String propertyName) {
 			super(propertyName);
 		}
-	}
+	}*/
 	
 	private String serialPort;
 	private Integer deviceId;
@@ -97,7 +96,7 @@ public class Config extends PropertiesPersistent {
 	}
 
 	public CommPortIdentifier getSerialPortId() {
-		Enumeration portList = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
 		CommPortIdentifier defaultPortId = null;
 
 		while (portList.hasMoreElements()) {

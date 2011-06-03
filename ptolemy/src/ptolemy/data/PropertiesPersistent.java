@@ -25,7 +25,7 @@ public class PropertiesPersistent {
 		String property();
 	}
 
-	private Object fromString(String s, Class c) {
+	private Object fromString(String s, Class<?> c) {
 		if(c.equals(String.class))
 			return s;
 		if(c.equals(Integer.class))
@@ -35,7 +35,7 @@ public class PropertiesPersistent {
 		return null;
 	}
 
-	public void loadFromProperties(Object o, Class c, String fileName) throws IOException {
+	public void loadFromProperties(Object o, Class<?> c, String fileName) throws IOException {
 		Properties properties = new Properties();
 
 		properties.load(new FileInputStream(fileName));
@@ -48,7 +48,7 @@ public class PropertiesPersistent {
 				String valueStr = properties.getProperty(anno.property());
 				if(valueStr == null) continue; // property not found. go on.
 
-				Class paramType[] = m.getParameterTypes();
+				Class<?> paramType[] = m.getParameterTypes();
 				if(paramType.length != 1) continue; // not a proper setter. ignore.
 
 				Object value = fromString(valueStr, paramType[0]);
@@ -59,7 +59,7 @@ public class PropertiesPersistent {
 		}
 	}
 
-	public void saveToProperties(Object o, Class c, String fileName) throws FileNotFoundException, IOException {
+	public void saveToProperties(Object o, Class<?> c, String fileName) throws FileNotFoundException, IOException {
 		Properties properties = new Properties();
 
 		for(Method m : c.getMethods()) {
