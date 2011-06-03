@@ -112,6 +112,20 @@
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
           </AuxValues>
           <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="menuFileExportCSV">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="ptolemy.View" id="doExportCSV" methodName="doExportCSV"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="menuFileExportCSV.text"/>
+                <Property name="name" type="java.lang.String" value="menuFileExportCSV" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="menuFileSeparator2">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="menuFileSeparator21" noResource="true"/>
+              </Properties>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuFileOpenserial">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">

@@ -1,5 +1,11 @@
 package ptolemy;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -14,6 +20,13 @@ import ptolemy.exprparser.ExprParser;
 public class DataProcessor {
 	private Timeline timeline;
 	private LinkedList<Double> valuesQueue = new LinkedList<Double>();
+	private static class DataRecord {
+		public static String hdr = null;
+		int a, b, c, d; double e;
+		public DataRecord(int x, int y, int z, int w, double h) {a=x;b=y;c=z;d=w;e=h;}
+		public String toString() {return String.format("%d;%d;%d;%d;%f", a, b, c, d, e); }
+	}
+	private LinkedList<DataRecord> allValues = new LinkedList<DataRecord>();
 
 	public DataProcessor() {
 	}
@@ -85,15 +98,20 @@ public class DataProcessor {
 		p.setVar("VSoff", receivedData[0]);
 		p.setVar("VRon", receivedData[3]);
 		p.setVar("VRoff", receivedData[1]);
-		double comp = p.eval();
+		Double comp = p.eval();
+		
+		if(comp.isInfinite()) comp = 0.0;
 
 		comp = doMobileAverage(comp);
+		
+		DataRecord.hdr = "VSon;VSoff;VRon;VRoff;" + Application.getApplication().getConfig().getComputeFormula();
+		allValues.add(new DataRecord(receivedData[2], receivedData[0], receivedData[3], receivedData[1], comp));
 
 		Application.println("  COMP = " + comp);
 		//traces[TraceIndex.COMPUTED.ordinal()].addPoint(traceIdx, comp);
 		//traceIdx++;
 		if (timeline != null) {
-			timeline.addPoint(Timeline.Index.COMPUTED, comp);
+			timeline.addPoint(Timeline.Index.COMPUTED, comp.isInfinite() ? 0 : comp);
 		}
 	}
 
@@ -127,6 +145,18 @@ public class DataProcessor {
 
 			SwingUtilities.invokeLater(new RawDataPacket(prefix, objNum, objValue));
 		}
+	}
+	
+	public void exportCSVData(File f) throws Exception {
+		PrintWriter br = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
+		if(DataRecord.hdr != null) br.println(DataRecord.hdr);
+		for(DataRecord r : allValues) br.println(r.toString());
+		br.close();
+	}
+	
+	public void clearAllData() {
+		allValues.clear();
+		DataRecord.hdr = null;
 	}
 
 	public class RawDataPacket implements Runnable {
