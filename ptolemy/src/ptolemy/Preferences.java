@@ -11,6 +11,9 @@ import javax.swing.AbstractAction;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import ptolemy.data.Config;
 
 /**
@@ -111,7 +114,7 @@ public class Preferences extends JDialog {
 		read2cmd.setText("???read2cmd???");
 
 		jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-		jLabel5.setText("Read(2) command:");
+		jLabel5.setText("Read(1) command:");
 
 		jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
 		jLabel6.setText("Read(2) command:");
@@ -123,13 +126,11 @@ public class Preferences extends JDialog {
 		mobMeanSize.setPaintTicks(true);
 		mobMeanSize.setSnapToTicks(true);
 		mobMeanSize.setValue(1);
-		mobMeanSize
-				.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-					public void propertyChange(
-							java.beans.PropertyChangeEvent evt) {
-						mobMeanSizePropertyChange(evt);
-					}
-				});
+		mobMeanSize.addChangeListener(new ChangeListener() {
+			@Override public void stateChanged(ChangeEvent e) {
+				lblMMS.setText("(" + mobMeanSize.getValue() + ")");
+			}
+		});
 
 		jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
 		jLabel7.setText("Moving average size:");
@@ -383,10 +384,6 @@ public class Preferences extends JDialog {
 								.addContainerGap()));
 
 		pack();
-	}
-
-	private void mobMeanSizePropertyChange(java.beans.PropertyChangeEvent evt) {
-		lblMMS.setText("(" + mobMeanSize.getValue() + ")");
 	}
 
 	public final void updateValuesFromConfig() {

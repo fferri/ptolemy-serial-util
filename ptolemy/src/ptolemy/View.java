@@ -27,6 +27,7 @@ public class View extends JFrame {
 	private Config config;
 
 	public View() {
+		super("Ptolemy - Main window");
 		initComponents();
 
 		serialCommObject = Application.getApplication().getSerialCommObject();

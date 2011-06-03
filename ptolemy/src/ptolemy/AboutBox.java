@@ -29,6 +29,7 @@ public class AboutBox extends javax.swing.JDialog {
 	private void initComponents() {
 
 		closeButton = new javax.swing.JButton();
+		closeButton.setText("Close");
 		javax.swing.JLabel appTitleLabel = new javax.swing.JLabel();
 		javax.swing.JLabel versionLabel = new javax.swing.JLabel();
 		javax.swing.JLabel appVersionLabel = new javax.swing.JLabel();
@@ -63,9 +64,9 @@ public class AboutBox extends javax.swing.JDialog {
 
 		versionLabel.setFont(versionLabel.getFont().deriveFont(
 				versionLabel.getFont().getStyle() | java.awt.Font.BOLD));
-		versionLabel.setText("1.2");
+		versionLabel.setText("Version:");
 
-		appVersionLabel.setText("Version:");
+		appVersionLabel.setText("1.2, Federico Ferri (C) 2011");
 
 		javax.swing.GroupLayout panel1Layout = new javax.swing.GroupLayout(
 				panel1);
