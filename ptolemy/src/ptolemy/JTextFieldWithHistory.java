@@ -11,6 +11,8 @@ import javax.swing.JTextField;
  * @author Federico Ferri
  */
 public class JTextFieldWithHistory extends JTextField implements KeyListener {
+	private static final long serialVersionUID = 2927841458374038707L;
+	
 	// History container:
 	private LinkedList<String> commandHistory = new LinkedList<String>();
 	private ListIterator<String> commandHistoryPtr = commandHistory.listIterator();

@@ -16,8 +16,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 /**
  * The timeline view
@@ -25,6 +23,7 @@ import javax.swing.JScrollPane;
  * @author Federico Ferri <federico.ferri.it@gmail.com>
  */
 public class Timeline extends JFrame {
+	private static final long serialVersionUID = -4897554241486850502L;
 
 	public static enum Index {
 		SENSOR_HI,
@@ -174,8 +173,6 @@ public class Timeline extends JFrame {
 	}
 	
 	private static final boolean useChart1 = false;
-	private JScrollPane scrollPane;
-	private JPanel scrollPaneContent;
 	private Chart2D chart1;
 	private Chart2D charts[];
 	private ITrace2D traces[];
@@ -184,6 +181,7 @@ public class Timeline extends JFrame {
 	private AAxis axes[];
 
 	public static class TracePainter extends TracePainterLine {
+		private static final long serialVersionUID = -2882936944582159083L;
 
 		@Override
 		public void paintPoint(int absoluteX, int absoluteY, int nextX, int nextY, Graphics g, ITracePoint2D original) {

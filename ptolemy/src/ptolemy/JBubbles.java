@@ -14,6 +14,8 @@ import javax.swing.SwingUtilities;
  * @author Federico Ferri
  */
 public class JBubbles extends JPanel {
+	private static final long serialVersionUID = -5191252251228955348L;
+
 	private class Particle {
 		public double x, y;
 		public double vx, vy;

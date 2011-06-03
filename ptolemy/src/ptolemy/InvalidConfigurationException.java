@@ -1,6 +1,8 @@
 package ptolemy;
 
 public class InvalidConfigurationException extends Exception {
+	private static final long serialVersionUID = -5062712960193732677L;
+	
 	private Exception nestedException;
 
 	public InvalidConfigurationException(Exception e) {
