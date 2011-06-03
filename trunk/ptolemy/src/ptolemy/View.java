@@ -1,21 +1,15 @@
 package ptolemy;
 
 import gnu.io.CommPortIdentifier;
-import org.jdesktop.application.Action;
-import org.jdesktop.application.ResourceMap;
-import org.jdesktop.application.SingleFrameApplication;
-import org.jdesktop.application.FrameView;
-import org.jdesktop.application.TaskMonitor;
+
+import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ResourceBundle;
 
+import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
-import javax.swing.Timer;
-import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
@@ -26,16 +20,13 @@ import ptolemy.data.Config;
  * 
  * @author Federico Ferri <federico.ferri.it@gmail.com>
  */
-public class View extends FrameView {
-	protected static final ResourceBundle res = ResourceBundle
-			.getBundle("ptolemy/resources/Application");
+public class View extends JFrame {
+	private static final long serialVersionUID = -1209245808507815927L;
 
 	private SerialComm serialCommObject;
 	private Config config;
 
-	public View(SingleFrameApplication app) {
-		super(app);
-
+	public View() {
 		initComponents();
 
 		serialCommObject = Application.getApplication().getSerialCommObject();
@@ -46,71 +37,10 @@ public class View extends FrameView {
 		timeline = new Timeline();
 		Application.getApplication().getDataProcessor().setTimeline(timeline);
 
-		changeChartsVisibiity();
+		new changeChartsVisibiity().actionPerformed(null);
 
 		Application.setPrintStream(new PrintStream(
 				textArea2OutputStream(textArea1)));
-
-		ResourceMap resourceMap = getResourceMap();
-		int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
-		messageTimer = new Timer(messageTimeout, new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				statusMessageLabel.setText("");
-			}
-		});
-		messageTimer.setRepeats(false);
-		int busyAnimationRate = resourceMap
-				.getInteger("StatusBar.busyAnimationRate");
-		for(int i = 0; i < busyIcons.length; i++) {
-			busyIcons[i] = resourceMap
-					.getIcon("StatusBar.busyIcons[" + i + "]");
-		}
-		busyIconTimer = new Timer(busyAnimationRate, new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				busyIconIndex = (busyIconIndex + 1) % busyIcons.length;
-				statusAnimationLabel.setIcon(busyIcons[busyIconIndex]);
-			}
-		});
-		idleIcon = resourceMap.getIcon("StatusBar.idleIcon");
-		statusAnimationLabel.setIcon(idleIcon);
-		progressBar.setVisible(false);
-
-		// connecting action tasks to status bar via TaskMonitor
-		TaskMonitor taskMonitor = new TaskMonitor(getApplication().getContext());
-		taskMonitor
-				.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-
-					public void propertyChange(
-							java.beans.PropertyChangeEvent evt) {
-						String propertyName = evt.getPropertyName();
-						if("started".equals(propertyName)) {
-							if(!busyIconTimer.isRunning()) {
-								statusAnimationLabel.setIcon(busyIcons[0]);
-								busyIconIndex = 0;
-								busyIconTimer.start();
-							}
-							progressBar.setVisible(true);
-							progressBar.setIndeterminate(true);
-						} else if("done".equals(propertyName)) {
-							busyIconTimer.stop();
-							statusAnimationLabel.setIcon(idleIcon);
-							progressBar.setVisible(false);
-							progressBar.setValue(0);
-						} else if("message".equals(propertyName)) {
-							String text = (String) (evt.getNewValue());
-							statusMessageLabel.setText((text == null) ? ""
-									: text);
-							messageTimer.restart();
-						} else if("progress".equals(propertyName)) {
-							int value = (Integer) (evt.getNewValue());
-							progressBar.setVisible(true);
-							progressBar.setIndeterminate(false);
-							progressBar.setValue(value);
-						}
-					}
-				});
 	}
 
 	public final void updateMenus() {
@@ -118,24 +48,30 @@ public class View extends FrameView {
 		menuFileCloseserial.setEnabled(serialCommObject.isOpen());
 	}
 
-	@Action
-	public final void showPreferences() {
-		// if (prefsBox == null) {
-		JFrame mainFrame = Application.getApplication().getMainFrame();
-		prefsBox = new Preferences(mainFrame);
-		prefsBox.setLocationRelativeTo(mainFrame);
-		// }
-		Application.getApplication().show(prefsBox);
+	public class showPreferences extends AbstractAction {
+		private static final long serialVersionUID = -3588170301017320033L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFrame mainFrame = Application.getApplication().getMainFrame();
+			Preferences prefsBox = new Preferences(mainFrame);
+			prefsBox.setLocationRelativeTo(mainFrame);
+			prefsBox.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			prefsBox.setVisible(true);
+		}
 	}
 
-	@Action
-	public final void showAboutBox() {
-		if(aboutBox == null) {
+	public class showAboutBox extends AbstractAction {
+		private static final long serialVersionUID = 5092801286181139469L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
 			JFrame mainFrame = Application.getApplication().getMainFrame();
-			aboutBox = new AboutBox(mainFrame);
+			AboutBox aboutBox = new AboutBox(mainFrame);
 			aboutBox.setLocationRelativeTo(mainFrame);
+			aboutBox.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+			aboutBox.setVisible(true);
 		}
-		Application.getApplication().show(aboutBox);
 	}
 
 	private void initComponents() {
@@ -168,39 +104,23 @@ public class View extends FrameView {
 		javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
 		statusPanel = new javax.swing.JPanel();
 		javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
-		statusMessageLabel = new javax.swing.JLabel();
-		statusAnimationLabel = new javax.swing.JLabel();
-		progressBar = new javax.swing.JProgressBar();
 		inputBox = new ptolemy.JTextFieldWithHistory();
 
-		mainPanel.setName("mainPanel"); // NOI18N
+		buttonRead.setAction(new doRead());
+		buttonRead.setText("Read (1)");
 
-		javax.swing.ActionMap actionMap = org.jdesktop.application.Application
-				.getInstance(ptolemy.Application.class).getContext()
-				.getActionMap(View.class, this);
-		buttonRead.setAction(actionMap.get("doRead")); // NOI18N
-		org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application
-				.getInstance(ptolemy.Application.class).getContext()
-				.getResourceMap(View.class);
-		buttonRead.setText(resourceMap.getString("buttonRead.text")); // NOI18N
-		buttonRead.setName("buttonRead"); // NOI18N
-
-		jScrollPane1.setName("jScrollPane1"); // NOI18N
-
-		textArea1.setBackground(resourceMap.getColor("textArea1.background")); // NOI18N
+		textArea1.setBackground(Color.black);
 		textArea1.setColumns(20);
 		textArea1.setEditable(false);
-		textArea1.setForeground(resourceMap.getColor("textArea1.foreground")); // NOI18N
+		textArea1.setForeground(Color.yellow);
 		textArea1.setRows(5);
-		textArea1.setName("textArea1"); // NOI18N
 		jScrollPane1.setViewportView(textArea1);
 
-		buttonRead2.setAction(actionMap.get("doRead2")); // NOI18N
-		buttonRead2.setName("buttonRead2"); // NOI18N
+		buttonRead2.setAction(new doRead2());
+		buttonRead2.setText("Read (2)");
 
-		buttonReadLoop.setAction(actionMap.get("doReadLoopToggle")); // NOI18N
-		buttonReadLoop.setText(resourceMap.getString("buttonReadLoop.text")); // NOI18N
-		buttonReadLoop.setName("buttonReadLoop"); // NOI18N
+		buttonReadLoop.setAction(new doReadLoopToggle());
+		buttonReadLoop.setText("Read loop");
 
 		javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(
 				mainPanel);
@@ -262,123 +182,83 @@ public class View extends FrameView {
 												322, Short.MAX_VALUE)
 										.addContainerGap()));
 
-		menuBar.setName("menuBar"); // NOI18N
+		menuFile.setText("File");
 
-		menuFile.setText(resourceMap.getString("menuFile.text")); // NOI18N
-		menuFile.setName("menuFile"); // NOI18N
-
-		menuFileExportCSV.setAction(actionMap.get("doExportCSV")); // NOI18N
-		menuFileExportCSV.setText(resourceMap
-				.getString("menuFileExportCSV.text")); // NOI18N
-		menuFileExportCSV.setName("menuFileExportCSV"); // NOI18N
+		menuFileExportCSV.setAction(new doExportCSV());
+		menuFileExportCSV.setText("Export CSV...");
 		menuFile.add(menuFileExportCSV);
 
-		menuFileSeparator21.setName("menuFileSeparator21");
 		menuFile.add(menuFileSeparator21);
 
-		menuFileOpenserial.setAction(actionMap.get("doOpenSerial")); // NOI18N
-		menuFileOpenserial.setText(resourceMap
-				.getString("menuFileOpenserial.text")); // NOI18N
-		menuFileOpenserial.setName("menuFileOpenserial"); // NOI18N
+		menuFileOpenserial.setAction(new doOpenSerial());
+		menuFileOpenserial.setText("Open serial port");
 		menuFile.add(menuFileOpenserial);
 
-		menuFileCloseserial.setAction(actionMap.get("doCloseSerial")); // NOI18N
-		menuFileCloseserial.setText(resourceMap
-				.getString("menuFileCloseserial.text")); // NOI18N
-		menuFileCloseserial.setName("menuFileCloseserial"); // NOI18N
+		menuFileCloseserial.setAction(new doCloseSerial());
+		menuFileCloseserial.setText("Close serial port");
 		menuFile.add(menuFileCloseserial);
 
-		menuFileSeparator1.setName("menuFileSeparator1"); // NOI18N
 		menuFile.add(menuFileSeparator1);
 
-		menuFilePreferences.setAction(actionMap.get("showPreferences")); // NOI18N
-		menuFilePreferences.setText(resourceMap
-				.getString("menuFilePreferences.text")); // NOI18N
-		menuFilePreferences.setName("menuFilePreferences"); // NOI18N
+		menuFilePreferences.setAction(new showPreferences());
+		menuFilePreferences.setText("Preferences...");
 		menuFile.add(menuFilePreferences);
 
-		menuFileSeparator2.setName("menuFileSeparator2"); // NOI18N
 		menuFile.add(menuFileSeparator2);
 
-		menuFileExit.setAction(actionMap.get("quit")); // NOI18N
-		menuFileExit.setName("menuFileExit"); // NOI18N
+		menuFileExit.setAction(new quitApplication());
+		menuFileExit.setText("Quit");
 		menuFile.add(menuFileExit);
 
 		menuBar.add(menuFile);
 
-		menuGraph.setText(resourceMap.getString("menuGraph.text")); // NOI18N
-		menuGraph.setName("menuGraph"); // NOI18N
+		menuGraph.setText("Graph");
 
-		menuGraphShow.setAction(actionMap.get("showGraphWindow")); // NOI18N
-		menuGraphShow.setText(resourceMap.getString("menuGraphShow.text")); // NOI18N
-		menuGraphShow.setName("menuGraphShow"); // NOI18N
+		menuGraphShow.setAction(new showGraphWindow());
+		menuGraphShow.setText("Show graph window...");
 		menuGraph.add(menuGraphShow);
 
-		menuGraphEmpty.setAction(actionMap.get("emptyGraphData")); // NOI18N
-		menuGraphEmpty.setText(resourceMap.getString("menuGraphEmpty.text")); // NOI18N
-		menuGraphEmpty.setName("menuGraphEmpty"); // NOI18N
+		menuGraphEmpty.setAction(new emptyGraphData());
+		menuGraphEmpty.setText("Clear graph");
 		menuGraph.add(menuGraphEmpty);
 
-		menuGraphSeparator1.setName("menuGraphSeparator1"); // NOI18N
 		menuGraph.add(menuGraphSeparator1);
 
-		menuGraphChkComposite.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
+		menuGraphChkComposite.setAction(new changeChartsVisibiity());
 		menuGraphChkComposite.setSelected(true);
-		menuGraphChkComposite.setText(resourceMap
-				.getString("menuGraphChkComposite.text")); // NOI18N
-		menuGraphChkComposite.setName("menuGraphChkComposite"); // NOI18N
+		menuGraphChkComposite.setText("Show track 'Composite'");
 		menuGraph.add(menuGraphChkComposite);
 
-		menuGraphChkSensorHi.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
-		menuGraphChkSensorHi.setText(resourceMap
-				.getString("menuGraphChkSensorHi.text")); // NOI18N
-		menuGraphChkSensorHi.setName("menuGraphChkSensorHi"); // NOI18N
+		menuGraphChkSensorHi.setAction(new changeChartsVisibiity());
+		menuGraphChkSensorHi.setText("Show track 'Light sensor, Led ON'");
 		menuGraph.add(menuGraphChkSensorHi);
 
-		menuGraphChkSensorLo.setAction(actionMap.get("changeChartsVisibiity")); // NOI18N
-		menuGraphChkSensorLo.setText(resourceMap
-				.getString("menuGraphChkSensorLo.text")); // NOI18N
-		menuGraphChkSensorLo.setName("menuGraphChkSensorLo"); // NOI18N
+		menuGraphChkSensorLo.setAction(new changeChartsVisibiity());
+		menuGraphChkSensorLo.setText("Show track 'Light sensor, Led OFF'");
 		menuGraph.add(menuGraphChkSensorLo);
 
-		menuGraphChkReferenceHi.setAction(actionMap
-				.get("changeChartsVisibiity")); // NOI18N
-		menuGraphChkReferenceHi.setText(resourceMap
-				.getString("menuGraphChkReferenceHi.text")); // NOI18N
-		menuGraphChkReferenceHi.setName("menuGraphChkReferenceHi"); // NOI18N
+		menuGraphChkReferenceHi.setAction(new changeChartsVisibiity());
+		menuGraphChkReferenceHi
+				.setText("Show track 'Reference sensor, Led ON'");
 		menuGraph.add(menuGraphChkReferenceHi);
 
-		menuGraphChkReferenceLo.setAction(actionMap
-				.get("changeChartsVisibiity")); // NOI18N
-		menuGraphChkReferenceLo.setText(resourceMap
-				.getString("menuGraphChkReferenceLo.text")); // NOI18N
-		menuGraphChkReferenceLo.setName("menuGraphChkReferenceLo"); // NOI18N
+		menuGraphChkReferenceLo.setAction(new changeChartsVisibiity());
+		menuGraphChkReferenceLo
+				.setText("Show track 'Reference sensor, Led OFF'");
 		menuGraph.add(menuGraphChkReferenceLo);
 
 		menuBar.add(menuGraph);
 
-		helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
+		helpMenu.setText("?");
 
-		aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
-		aboutMenuItem.setName("aboutMenuItem"); // NOI18N
+		aboutMenuItem.setAction(new showAboutBox());
+		aboutMenuItem.setText("About Ptolemy...");
 		helpMenu.add(aboutMenuItem);
 
 		menuBar.add(helpMenu);
 
-		statusPanel.setName("statusPanel"); // NOI18N
-
-		statusPanelSeparator.setName("statusPanelSeparator"); // NOI18N
-
-		statusMessageLabel.setName("statusMessageLabel"); // NOI18N
-
-		statusAnimationLabel
-				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		statusAnimationLabel.setName("statusAnimationLabel"); // NOI18N
-
-		progressBar.setName("progressBar"); // NOI18N
-
-		inputBox.setText(resourceMap.getString("inputBox.text")); // NOI18N
-		inputBox.setName("inputBox"); // NOI18N
+		inputBox.setText("");
+		inputBox.setToolTipText("Use this input to send raw commands to the board (see manual)");
 
 		javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(
 				statusPanel);
@@ -393,24 +273,12 @@ public class View extends FrameView {
 						.addGroup(
 								statusPanelLayout
 										.createSequentialGroup()
-										.addContainerGap()
-										.addComponent(statusMessageLabel)
 										.addPreferredGap(
 												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addComponent(
 												inputBox,
 												javax.swing.GroupLayout.DEFAULT_SIZE,
 												476, Short.MAX_VALUE)
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(
-												progressBar,
-												javax.swing.GroupLayout.PREFERRED_SIZE,
-												javax.swing.GroupLayout.DEFAULT_SIZE,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(statusAnimationLabel)
 										.addContainerGap()));
 		statusPanelLayout
 				.setVerticalGroup(statusPanelLayout
@@ -432,29 +300,6 @@ public class View extends FrameView {
 																statusPanelLayout
 																		.createSequentialGroup()
 																		.addPreferredGap(
-																				javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-																				20,
-																				Short.MAX_VALUE)
-																		.addGroup(
-																				statusPanelLayout
-																						.createParallelGroup(
-																								javax.swing.GroupLayout.Alignment.BASELINE)
-																						.addComponent(
-																								statusMessageLabel)
-																						.addComponent(
-																								statusAnimationLabel)
-																						.addComponent(
-																								progressBar,
-																								javax.swing.GroupLayout.PREFERRED_SIZE,
-																								javax.swing.GroupLayout.DEFAULT_SIZE,
-																								javax.swing.GroupLayout.PREFERRED_SIZE))
-																		.addGap(3,
-																				3,
-																				3))
-														.addGroup(
-																statusPanelLayout
-																		.createSequentialGroup()
-																		.addPreferredGap(
 																				javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 																		.addComponent(
 																				inputBox,
@@ -463,9 +308,15 @@ public class View extends FrameView {
 																				javax.swing.GroupLayout.PREFERRED_SIZE)
 																		.addContainerGap()))));
 
-		setComponent(mainPanel);
-		setMenuBar(menuBar);
-		setStatusBar(statusPanel);
+		setJMenuBar(menuBar);
+
+		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		getContentPane().add(mainPanel);
+		getContentPane().add(statusPanel);
+
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+		pack();
 	}
 
 	public final OutputStream textArea2OutputStream(final JTextArea t) {
@@ -482,102 +333,149 @@ public class View extends FrameView {
 		};
 	}
 
-	@Action
-	public final void doRead() {
-		if(!serialCommObject.isOpen()) {
-			JOptionPane.showMessageDialog(getComponent(),
-					res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"),
-					JOptionPane.ERROR_MESSAGE);
-			return;
+	public class quitApplication extends AbstractAction {
+		private static final long serialVersionUID = -8873732033500011472L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.exit(0);
 		}
-		serialCommObject.sendCommand(config.getRead1Command());
 	}
 
-	@Action
-	public final void doRead2() {
-		if(!serialCommObject.isOpen()) {
-			JOptionPane.showMessageDialog(getComponent(),
-					res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"),
-					JOptionPane.ERROR_MESSAGE);
-			return;
+	public class doRead extends AbstractAction {
+		private static final long serialVersionUID = 6300706191255833394L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(!serialCommObject.isOpen()) {
+				JOptionPane.showMessageDialog(View.this,
+						"Error: serial port is not open", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			serialCommObject.sendCommand(config.getRead1Command());
 		}
-		serialCommObject.sendCommand(config.getRead2Command());
 	}
 
-	@Action
-	public final void doExportCSV() {
-		final JFileChooser fc = new JFileChooser();
-		if(JFileChooser.APPROVE_OPTION == fc.showSaveDialog(getRootPane())) {
-			DataProcessor dp = Application.getApplication().getDataProcessor();
-			try {
-				dp.exportCSVData(fc.getSelectedFile());
-			} catch(Exception e) {
-				JOptionPane.showMessageDialog(getRootPane(),
-						res.getString("ERROR") + ": " + e.toString());
+	public class doRead2 extends AbstractAction {
+		private static final long serialVersionUID = 7865506179505823395L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(!serialCommObject.isOpen()) {
+				JOptionPane.showMessageDialog(View.this,
+						"Error: serial port is not open", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			serialCommObject.sendCommand(config.getRead2Command());
+		}
+	}
+
+	public class doExportCSV extends AbstractAction {
+		private static final long serialVersionUID = -5881304405804723304L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			final JFileChooser fc = new JFileChooser();
+			if(JFileChooser.APPROVE_OPTION == fc.showSaveDialog(getRootPane())) {
+				DataProcessor dp = Application.getApplication()
+						.getDataProcessor();
+				try {
+					dp.exportCSVData(fc.getSelectedFile());
+				} catch(Exception ex) {
+					JOptionPane.showMessageDialog(View.this,
+							"Error: " + ex.toString(), "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		}
 	}
 
-	@Action
-	public final void doOpenSerial() {
-		CommPortIdentifier id = config.getSerialPortId();
+	public class doOpenSerial extends AbstractAction {
+		private static final long serialVersionUID = 604452437931934941L;
 
-		if(id == null) {
-			JOptionPane.showMessageDialog(getComponent(),
-					res.getString("NO_SERIAL_PORT_CONFIGURED"),
-					res.getString("ERROR"), JOptionPane.ERROR_MESSAGE);
-			return;
-		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			CommPortIdentifier id = config.getSerialPortId();
 
-		serialCommObject.open(id);
-		updateMenus();
-	}
+			if(id == null) {
+				JOptionPane.showMessageDialog(View.this,
+						"Error: no serial port configured", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 
-	@Action
-	public final void doCloseSerial() {
-		serialCommObject.close();
-		updateMenus();
-	}
-
-	@Action
-	public final void doReadLoopToggle() {
-		if(!serialCommObject.isOpen()) {
-			JOptionPane.showMessageDialog(getComponent(),
-					res.getString("ERR_PORT_NOT_OPEN"), res.getString("ERROR"),
-					JOptionPane.ERROR_MESSAGE);
-			buttonReadLoop.setSelected(false);
-			return;
-		}
-
-		if(buttonReadLoop.isSelected()) {
-			enablePeriodicRead();
-		} else {
-			disablePeriodicRead();
+			serialCommObject.open(id);
+			updateMenus();
 		}
 	}
 
-	@Action
-	public final void showGraphWindow() {
-		timeline.setVisible(true);
+	public class doCloseSerial extends AbstractAction {
+		private static final long serialVersionUID = 4314771988028199994L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			serialCommObject.close();
+			updateMenus();
+		}
 	}
 
-	@Action
-	public final void changeChartsVisibiity() {
-		timeline.setChartVisible(Timeline.Index.SENSOR_HI,
-				menuGraphChkSensorHi.isSelected());
-		timeline.setChartVisible(Timeline.Index.SENSOR_LO,
-				menuGraphChkSensorLo.isSelected());
-		timeline.setChartVisible(Timeline.Index.REFERENCE_HI,
-				menuGraphChkReferenceHi.isSelected());
-		timeline.setChartVisible(Timeline.Index.REFERENCE_LO,
-				menuGraphChkReferenceLo.isSelected());
-		timeline.setChartVisible(Timeline.Index.COMPUTED,
-				menuGraphChkComposite.isSelected());
+	public class doReadLoopToggle extends AbstractAction {
+		private static final long serialVersionUID = -5786333779312285979L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(!serialCommObject.isOpen()) {
+				JOptionPane.showMessageDialog(View.this,
+						"Error: serial port is not open", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				buttonReadLoop.setSelected(false);
+				return;
+			}
+
+			if(buttonReadLoop.isSelected()) {
+				enablePeriodicRead();
+			} else {
+				disablePeriodicRead();
+			}
+		}
 	}
 
-	@Action
-	public final void emptyGraphData() {
-		timeline.clear();
+	public class showGraphWindow extends AbstractAction {
+		private static final long serialVersionUID = 8627627209349699675L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			timeline.setVisible(true);
+		}
+	}
+
+	public class changeChartsVisibiity extends AbstractAction {
+		private static final long serialVersionUID = 6051856489827063052L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			timeline.setChartVisible(Timeline.Index.SENSOR_HI,
+					menuGraphChkSensorHi.isSelected());
+			timeline.setChartVisible(Timeline.Index.SENSOR_LO,
+					menuGraphChkSensorLo.isSelected());
+			timeline.setChartVisible(Timeline.Index.REFERENCE_HI,
+					menuGraphChkReferenceHi.isSelected());
+			timeline.setChartVisible(Timeline.Index.REFERENCE_LO,
+					menuGraphChkReferenceLo.isSelected());
+			timeline.setChartVisible(Timeline.Index.COMPUTED,
+					menuGraphChkComposite.isSelected());
+		}
+	}
+
+	public class emptyGraphData extends AbstractAction {
+		private static final long serialVersionUID = -8353420425831950568L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			timeline.clear();
+		}
 	}
 
 	public final void enablePeriodicRead() {
@@ -623,18 +521,8 @@ public class View extends FrameView {
 	private javax.swing.JMenuItem menuGraphEmpty;
 	private javax.swing.JPopupMenu.Separator menuGraphSeparator1;
 	private javax.swing.JMenuItem menuGraphShow;
-	private javax.swing.JProgressBar progressBar;
-	private javax.swing.JLabel statusAnimationLabel;
-	private javax.swing.JLabel statusMessageLabel;
 	private javax.swing.JPanel statusPanel;
 	private javax.swing.JTextArea textArea1;
 
-	private final Timer messageTimer;
-	private final Timer busyIconTimer;
-	private final Icon idleIcon;
-	private final Icon[] busyIcons = new Icon[15];
-	private int busyIconIndex = 0;
 	private Timeline timeline;
-	private JDialog aboutBox;
-	private JDialog prefsBox;
 }
