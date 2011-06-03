@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ResourceBundle;
+
+import javax.swing.JFileChooser;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -148,11 +150,13 @@ public class View extends FrameView {
                 buttonReadLoop = new javax.swing.JToggleButton();
                 menuBar = new javax.swing.JMenuBar();
                 javax.swing.JMenu menuFile = new javax.swing.JMenu();
+                menuFileExportCSV = new javax.swing.JMenuItem();
                 menuFileOpenserial = new javax.swing.JMenuItem();
                 menuFileCloseserial = new javax.swing.JMenuItem();
                 menuFileSeparator1 = new javax.swing.JPopupMenu.Separator();
                 menuFilePreferences = new javax.swing.JMenuItem();
                 menuFileSeparator2 = new javax.swing.JPopupMenu.Separator();
+                menuFileSeparator21 = new javax.swing.JPopupMenu.Separator();
                 javax.swing.JMenuItem menuFileExit = new javax.swing.JMenuItem();
                 menuGraph = new javax.swing.JMenu();
                 menuGraphShow = new javax.swing.JMenuItem();
@@ -231,6 +235,14 @@ public class View extends FrameView {
                 menuFile.setText(resourceMap.getString("menuFile.text")); // NOI18N
                 menuFile.setName("menuFile"); // NOI18N
 
+                menuFileExportCSV.setAction(actionMap.get("doExportCSV")); // NOI18N
+                menuFileExportCSV.setText(resourceMap.getString("menuFileExportCSV.text")); // NOI18N
+                menuFileExportCSV.setName("menuFileExportCSV"); // NOI18N
+                menuFile.add(menuFileExportCSV);
+                
+                menuFileSeparator21.setName("menuFileSeparator21");
+                menuFile.add(menuFileSeparator21);
+                
                 menuFileOpenserial.setAction(actionMap.get("doOpenSerial")); // NOI18N
                 menuFileOpenserial.setText(resourceMap.getString("menuFileOpenserial.text")); // NOI18N
                 menuFileOpenserial.setName("menuFileOpenserial"); // NOI18N
@@ -396,6 +408,19 @@ public class View extends FrameView {
 	}
 
 	@Action
+	public final void doExportCSV() {
+		final JFileChooser fc = new JFileChooser();
+		if(JFileChooser.APPROVE_OPTION == fc.showSaveDialog(getRootPane())) {
+			DataProcessor dp = Application.getApplication().getDataProcessor();
+			try {
+				dp.exportCSVData(fc.getSelectedFile());
+			} catch(Exception e) {
+				JOptionPane.showMessageDialog(getRootPane(), res.getString("ERROR") + ": " + e.toString());
+			}
+		}
+	}
+	
+	@Action
 	public final void doOpenSerial() {
 		CommPortIdentifier id = config.getSerialPortId();
 
@@ -477,11 +502,13 @@ public class View extends FrameView {
         private javax.swing.JScrollPane jScrollPane1;
         private javax.swing.JPanel mainPanel;
         private javax.swing.JMenuBar menuBar;
+        private javax.swing.JMenuItem menuFileExportCSV;
         private javax.swing.JMenuItem menuFileCloseserial;
         private javax.swing.JMenuItem menuFileOpenserial;
         private javax.swing.JMenuItem menuFilePreferences;
         private javax.swing.JPopupMenu.Separator menuFileSeparator1;
         private javax.swing.JPopupMenu.Separator menuFileSeparator2;
+        private javax.swing.JPopupMenu.Separator menuFileSeparator21;
         private javax.swing.JMenu menuGraph;
         private javax.swing.JCheckBoxMenuItem menuGraphChkComposite;
         private javax.swing.JCheckBoxMenuItem menuGraphChkReferenceHi;

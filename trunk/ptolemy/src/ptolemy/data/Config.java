@@ -45,7 +45,9 @@ public class Config extends PropertiesPersistent {
 	}
 
 	private void initDefaults() {
-		serialPort = getSerialPortId().getName();
+		CommPortIdentifier serialPortId = getSerialPortId();
+		if(serialPortId != null) serialPort = serialPortId.getName();
+		else Application.printerr(res.getString("ERR_CREATING_SERIAL_PORT"));
 		deviceId = 0;
 		computeFormula = "(VSon-VSoff)/(VRon-VRoff)";
 		periodicReadInterval = 2000;
