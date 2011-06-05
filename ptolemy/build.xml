@@ -12,6 +12,7 @@
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
+		<delete dir="${build}" />
 		<mkdir dir="${build}" />
 	</target>
 
@@ -31,12 +32,19 @@
 	<target name="dist" depends="compile" description="generate the distribution">
 		<mkdir dir="${dist}/lib" />
 
-		<jar jarfile="${dist}/Ptolemy-${DSTAMP}.jar" basedir="${build}" />
-		<jar jarfile="${dist}/Ptolemy.jar" basedir="${build}" />
+		<jar destfile="${dist}/Ptolemy.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+                <attribute name="Main-Class" value="ptolemy.Application"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${build}"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib}/RXTXcomm.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib}/jchart2d-3.2.0.jar"/>
+		</jar>
 	</target>
 
 	<target name="clean" description="clean up">
 		<delete dir="${build}" />
-		<delete dir="${dist}/Ptolemy*.jar" />
+		<delete dir="${dist}/Ptolemy.jar" />
 	</target>
 </project>
